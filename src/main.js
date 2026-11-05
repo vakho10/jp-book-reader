@@ -460,11 +460,18 @@ function renderToc() {
   $('#tocBook').classList.toggle('hidden', !book);
   $('#tocCredits').textContent = book?.credits || '';
   $('#tocCredits').classList.toggle('hidden', !book?.credits);
-  const missingDemos = DEMOS.filter((d) => !libraryIndex.some((b) => b.id === d.id));
-  $('#libDemos').innerHTML = missingDemos.map((d) => `
+  // Demo shortcuts: a small "Try demo" pill in the top bar (wider screens) and a row in the
+  // library panel (all screens). Hidden while the demo itself is open; the welcome screen has its own card.
+  const isDemo = DEMOS.some((d) => d.id === book?.id);
+  $('#demoBtn').style.display = book && !isDemo ? '' : 'none';
+  const otherDemos = DEMOS.filter((d) => d.id !== book?.id);
+  $('#libDemos').innerHTML = otherDemos.map((d) => {
+    const loaded = libraryIndex.some((b) => b.id === d.id);
+    return loaded ? '' : `
     <li><button data-demo="${d.id}" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-muted hover:bg-(--hl) hover:text-ink">
-      ${icon('plus', 'size-4')}<span>Add demo: <span class="font-jp">${esc(d.ja)}</span></span>
-    </button></li>`).join('');
+      ${icon('play', 'size-4 text-accent')}<span>Try the demo: <span class="font-jp">${esc(d.ja)}</span></span>
+    </button></li>`;
+  }).join('');
   $('#libList').innerHTML = libraryIndex.map((b) => `
     <li class="flex items-center gap-1">
       <button data-open-book="${b.id}" class="flex min-w-0 flex-1 items-baseline gap-2 rounded-lg px-3 py-2 text-left hover:bg-(--hl) ${b.id === book?.id ? 'text-accent' : ''}">
