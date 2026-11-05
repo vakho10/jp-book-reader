@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbfaf7" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Bilingual Reader</title>
+    <meta name="description" content="Read Japanese books sentence by sentence with an English translation, furigana, word lookup and read-aloud. Book files stay on your device." />
+    <script>
+      // Apply saved look before first paint (no white flash in dark mode, no font-size jump).
+      (function () {
+        var r = document.documentElement, s = {};
+        try { s = JSON.parse(localStorage.getItem('tdh:settings')) || {}; } catch (e) {}
+        r.dataset.theme = s.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (s.size) r.style.setProperty('--jp-size', s.size + 'px');
+        if (s.tr) r.dataset.tr = s.tr;
+        if (s.furi) r.dataset.furi = s.furi;
+        if (s.font) r.dataset.font = s.font;
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="min-h-screen bg-paper text-ink antialiased">
+    <div id="progress" class="fixed inset-x-0 top-0 z-50 h-0.5 origin-left scale-x-0 bg-accent"></div>
+
+    <header id="topbar" class="sticky top-0 z-40 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur transition-transform duration-300">
+      <div class="mx-auto flex max-w-(--measure) items-center gap-1.5 py-1.5 pr-[max(0.75rem,env(safe-area-inset-right))] pl-[max(0.5rem,env(safe-area-inset-left))] sm:gap-2 sm:px-4">
+        <button id="tocBtn" class="iconbtn" title="Chapters (C)" aria-label="Chapters"><i data-icon="bars-3"></i></button>
+        <div class="min-w-0 flex-1 leading-tight">
+          <div class="truncate font-jp text-sm font-semibold" id="hdrTitle">Bilingual Reader</div>
+          <div class="truncate text-[11px] text-muted sm:text-xs" id="hdrSub"></div>
+        </div>
+        <button id="trBtn" class="pill" title="Translation: shown / tap to reveal / hidden (T)"></button>
+        <button id="furiBtn" class="pill font-jp" title="Furigana: book / all kanji / on hover / off (F)"></button>
+        <button id="listenBtn" class="iconbtn" title="Read aloud from here (P)" aria-label="Read aloud"><i data-icon="speaker"></i></button>
+        <button id="bmBtn" class="iconbtn relative" title="Bookmarks (B)" aria-label="Bookmarks">
+          <i data-icon="bookmark"></i>
+          <span id="bmCount" class="absolute top-1 right-1 hidden min-w-4 rounded-full bg-accent px-1 text-center text-[10px] leading-4 font-semibold text-paper"></span>
+        </button>
+        <button id="setBtn" class="iconbtn" title="Settings (S)" aria-label="Settings"><i data-icon="adjustments"></i></button>
+      </div>
+    </header>
+
+    <!-- Bookmarks panel -->
+    <div id="bookmarks" class="panel hidden" role="dialog" aria-label="Bookmarks">
+      <div class="mx-auto max-w-(--measure) px-4 py-4">
+        <div class="grid grid-cols-2 gap-2">
+          <button id="bmHere" class="action"><i data-icon="plus"></i><span>Save this spot</span></button>
+          <button id="bmPick" class="action"><i data-icon="cursor"></i><span>Pick a sentence</span></button>
+        </div>
+        <ul id="bmList" class="mt-4 divide-y divide-line"></ul>
+        <div class="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-xs text-muted">
+          <span class="mr-auto">Saved in this browser. Export a backup to move bookmarks between devices.</span>
+          <button id="bmExport" class="pill inline-flex items-center gap-1.5"><i data-icon="download" class="size-4"></i>Export</button>
+          <button id="bmImport" class="pill inline-flex items-center gap-1.5"><i data-icon="upload" class="size-4"></i>Import</button>
+          <input id="bmFile" type="file" accept="application/json,.json" class="hidden" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Pick-a-sentence mode banner -->
+    <div id="pickBar" class="fixed inset-x-0 bottom-0 z-50 hidden border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgb(0_0_0/0.08)] backdrop-blur">
+      <div class="mx-auto flex max-w-(--measure) items-center gap-3 px-4 py-3">
+        <i data-icon="bookmark" class="size-5 text-accent"></i>
+        <span class="flex-1 text-sm">Tap a sentence to bookmark it</span>
+        <button id="pickCancel" class="pill">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Read-aloud player -->
+    <div id="player" class="fixed inset-x-0 bottom-0 z-40 hidden border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgb(0_0_0/0.08)] backdrop-blur" role="region" aria-label="Read aloud">
+      <div class="mx-auto flex max-w-(--measure) items-center gap-1 px-3 py-2 sm:gap-2 sm:px-4">
+        <button id="plPrev" class="iconbtn" title="Previous sentence ([)" aria-label="Previous sentence"><i data-icon="backward"></i></button>
+        <button id="plPlay" class="grid size-12 shrink-0 place-items-center rounded-full bg-accent text-paper shadow transition hover:brightness-110" aria-label="Play"></button>
+        <button id="plNext" class="iconbtn" title="Next sentence (])" aria-label="Next sentence"><i data-icon="forward"></i></button>
+        <button id="plRepeat" class="iconbtn" title="Repeat the current sentence (shadowing)" aria-label="Repeat sentence" aria-pressed="false"><i data-icon="repeat"></i></button>
+        <div class="min-w-0 flex-1 px-1 text-xs leading-tight text-muted">
+          <div id="plStatus" class="truncate">Paused</div>
+          <div class="truncate opacity-80 [@media(hover:hover)]:hidden">Tap a sentence to jump there</div>
+          <div class="truncate opacity-80 [@media(hover:none)]:hidden">Click a sentence to jump there</div>
+        </div>
+        <button id="plRate" class="pill tabular-nums" title="Reading speed"></button>
+        <button id="plClose" class="iconbtn" title="Close (Esc)" aria-label="Close player"><i data-icon="x-mark"></i></button>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" role="status" aria-live="polite" class="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-[60] hidden -translate-x-1/2 items-center gap-3 rounded-full bg-ink py-2 pr-2 pl-4 text-sm text-paper shadow-lg">
+      <span id="toastMsg"></span>
+      <button id="toastUndo" class="rounded-full px-3 py-1 font-semibold text-accent hover:bg-white/10">Undo</button>
+    </div>
+
+    <!-- Settings panel -->
+    <div id="settings" class="panel hidden">
+      <div class="mx-auto grid max-w-(--measure) gap-4 px-4 py-4 sm:grid-cols-2">
+        <label class="field">Theme
+          <div class="seg" data-setting="theme">
+            <button data-v="light">Light</button><button data-v="sepia">Sepia</button><button data-v="dark">Dark</button>
+          </div>
+        </label>
+        <label class="field">Japanese font
+          <div class="seg" data-setting="font">
+            <button data-v="serif" class="font-jp">明朝</button><button data-v="sans" class="font-jp-sans">ゴシック</button>
+          </div>
+        </label>
+        <label class="field">Text size <span class="text-muted" id="sizeVal"></span>
+          <input type="range" id="size" min="16" max="30" step="1" class="w-full accent-(--accent)" />
+        </label>
+        <label class="field">Translation size <span class="text-muted" id="trSizeVal"></span>
+          <input type="range" id="trSize" min="70" max="100" step="5" class="w-full accent-(--accent)" />
+        </label>
+        <label class="field">Translation
+          <div class="seg" data-setting="tr">
+            <button data-v="show">Shown</button><button data-v="reveal">Tap to reveal</button><button data-v="hide">Hidden</button>
+          </div>
+        </label>
+        <label class="field">Furigana
+          <div class="seg" data-setting="furi">
+            <button data-v="book">Book</button><button data-v="all">All kanji</button><button data-v="hover">Hover</button><button data-v="off">Off</button>
+          </div>
+        </label>
+        <label class="field">Voice
+          <div class="flex gap-2 normal-case tracking-normal">
+            <select id="voice" class="min-h-10 min-w-0 flex-1 rounded-lg border border-line bg-card px-2 text-sm text-ink"></select>
+            <button id="voiceTest" class="pill inline-flex items-center gap-1.5"><i data-icon="speaker" class="size-4"></i>Test</button>
+          </div>
+          <span id="voiceHelp" class="hidden text-[11px] leading-snug font-normal tracking-normal text-muted normal-case"></span>
+        </label>
+        <label class="field">Reading speed <span class="text-muted" id="rateVal"></span>
+          <input type="range" id="rate" min="0.5" max="1.3" step="0.05" class="w-full accent-(--accent)" />
+        </label>
+        <p class="text-xs leading-relaxed text-muted sm:col-span-2">
+          Tap any word for its reading, dictionary form and a Jisho link. In “Tap to reveal” mode, tap a blurred line to show it and tap again to hide it.
+          <span class="[@media(hover:none)]:hidden">Keys: <kbd>T</kbd> translation · <kbd>F</kbd> furigana · <kbd>S</kbd> settings · <kbd>B</kbd> bookmarks · <kbd>P</kbd> play/pause · <kbd>[</kbd>/<kbd>]</kbd> previous/next sentence · <kbd>C</kbd> chapters · <kbd>←</kbd>/<kbd>→</kbd> chapter · <kbd>Esc</kbd> close.</span>
+          “All kanji” readings are machine-generated and occasionally wrong — the book’s own furigana are shown in a stronger color.
+        </p>
+      </div>
+    </div>
+
+    <!-- Chapter list -->
+    <div id="toc" class="panel hidden" role="dialog" aria-label="Chapters and library">
+      <div class="mx-auto max-w-(--measure) px-4 py-3">
+        <h2 id="tocBook" class="hidden px-3 pt-1 pb-2 font-jp text-sm font-semibold"></h2>
+        <ol id="tocList"></ol>
+        <div class="mt-3 border-t border-line pt-3">
+          <div class="flex items-center justify-between gap-2 px-3 pb-1">
+            <h2 class="text-xs font-medium tracking-wide text-muted uppercase">Library on this device</h2>
+            <button id="addBook" class="pill inline-flex items-center gap-1.5"><i data-icon="plus" class="size-4"></i>Add book file</button>
+          </div>
+          <ul id="libList"></ul>
+        </div>
+      </div>
+    </div>
+    <input id="bookFile" type="file" accept=".json,.gz,application/json,application/gzip" multiple class="hidden" />
+
+    <div id="backdrop" class="hidden"></div>
+
+    <main id="reader" class="mx-auto max-w-(--measure) pt-8 pr-[max(1.1rem,env(safe-area-inset-right))] pb-[calc(8rem+env(safe-area-inset-bottom))] pl-[max(1.1rem,env(safe-area-inset-left))] sm:px-6 sm:pt-10"></main>
+
+    <!-- Word popover (bottom sheet on phones) -->
+    <div id="pop" class="pointer-events-auto fixed z-50 hidden w-72 max-w-[calc(100vw-24px)] rounded-xl border border-line bg-card p-4 shadow-xl" role="dialog"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

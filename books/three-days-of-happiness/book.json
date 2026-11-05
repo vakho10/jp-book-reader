@@ -1,0 +1,30 @@
+{
+  "id": "three-days-of-happiness",
+  "title": { "ja": "三日間の幸福", "en": "Three Days of Happiness" },
+  "author": { "ja": "三秋縋", "en": "Sugaru Miaki" },
+  "sources": {
+    "ja": { "epub": "source/ja.epub", "titleSelector": "p[id^=toc-]" },
+    "en": { "epub": "source/en.epub", "titleSelector": "h1.chapter-title" }
+  },
+  "chapters": [
+    { "n": 1, "ja": "text/part0004.html", "en": "OEBPS/Text/chapter001.xhtml" },
+    { "n": 2, "ja": "text/part0005.html", "en": "OEBPS/Text/chapter002.xhtml" },
+    { "n": 3, "ja": "text/part0006.html", "en": "OEBPS/Text/chapter003.xhtml" },
+    { "n": 4, "ja": "text/part0007.html", "en": "OEBPS/Text/chapter004.xhtml" },
+    { "n": 5, "ja": "text/part0008.html", "en": "OEBPS/Text/chapter005.xhtml" },
+    { "n": 6, "ja": "text/part0009.html", "en": "OEBPS/Text/chapter006.xhtml" },
+    { "n": 7, "ja": "text/part0010.html", "en": "OEBPS/Text/chapter007.xhtml" },
+    { "n": 8, "ja": "text/part0011.html", "en": "OEBPS/Text/chapter008.xhtml" },
+    { "n": 9, "ja": "text/part0012.html", "en": "OEBPS/Text/chapter009.xhtml" },
+    { "n": 10, "ja": "text/part0013.html", "en": "OEBPS/Text/chapter010.xhtml" },
+    { "n": 11, "ja": "text/part0014.html", "en": "OEBPS/Text/chapter011.xhtml" },
+    { "n": 12, "ja": "text/part0015.html", "en": "OEBPS/Text/chapter012.xhtml" },
+    { "n": 13, "ja": "text/part0016.html", "en": "OEBPS/Text/chapter013.xhtml" },
+    { "n": 14, "ja": "text/part0017.html", "en": "OEBPS/Text/chapter014.xhtml" },
+    { "n": 15, "ja": "text/part0018.html", "en": "OEBPS/Text/chapter015.xhtml" },
+    {
+      "n": 16, "label": "Afterword", "ja": "text/part0019.html", "en": "OEBPS/Text/appendix001.xhtml",
+      "title": { "ja": "あとがき", "en": "Afterword" }
+    }
+  ]
+}

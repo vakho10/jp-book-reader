@@ -1,0 +1,20 @@
+# dependencies & builds
+node_modules/
+dist/
+
+# Book content: copyrighted, never commit or publish
+books/*/source/
+*.epub
+out/
+work/
+*.book.json
+*.book.json.gz
+
+# misc
+.DS_Store
+Thumbs.db
+*.log
+
+# editor settings
+.idea/
+.vscode/

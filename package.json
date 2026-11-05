@@ -1,0 +1,27 @@
+{
+  "name": "bilingual-reader",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "inspect": "node scripts/inspect.mjs",
+    "extract": "node scripts/extract.mjs",
+    "check": "node scripts/check.mjs",
+    "book": "node scripts/build-book.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "heroicons": "^2.2.0",
+    "jszip": "^3.10.2",
+    "kuromoji": "^0.1.2",
+    "node-html-parser": "^6.1.13",
+    "tailwindcss": "^4.3.3",
+    "vite": "^6.4.4",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/bilingual-reader-book/v1",
+  "title": "bilingual-reader-book v1",
+  "description": "One book: Japanese sentences with word tokens, aligned to an English translation. See docs/data-format.md.",
+  "type": "object",
+  "required": ["format", "version", "id", "revision", "title", "chapters"],
+  "properties": {
+    "format": { "const": "bilingual-reader-book" },
+    "version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "revision": { "type": "string", "format": "date-time" },
+    "title": { "$ref": "#/$defs/bilingual" },
+    "author": { "$ref": "#/$defs/bilingual" },
+    "languages": {
+      "type": "object",
+      "properties": { "text": { "type": "string" }, "translation": { "type": "string" } }
+    },
+    "chapters": { "type": "array", "items": { "$ref": "#/$defs/chapter" } }
+  },
+  "$defs": {
+    "bilingual": {
+      "type": "object",
+      "required": ["ja"],
+      "properties": { "ja": { "type": "string" }, "en": { "type": "string" } }
+    },
+    "chapter": {
+      "type": "object",
+      "required": ["n", "title", "blocks"],
+      "properties": {
+        "n": { "type": "integer", "minimum": 0 },
+        "label": { "type": "string" },
+        "title": { "$ref": "#/$defs/bilingual" },
+        "blocks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/block" } }
+      }
+    },
+    "block": {
+      "type": "object",
+      "required": ["ja", "en"],
+      "properties": {
+        "ja": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sentence" } },
+        "en": { "type": "string" },
+        "para": { "const": true },
+        "scene": { "const": true }
+      }
+    },
+    "sentence": {
+      "type": "object",
+      "required": ["tokens"],
+      "properties": {
+        "tokens": { "type": "array", "items": { "$ref": "#/$defs/token" } },
+        "para": { "const": true }
+      }
+    },
+    "token": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "required": ["f"],
+          "properties": { "f": { "type": "array", "items": { "$ref": "#/$defs/frag" } } }
+        },
+        {
+          "description": "word: [frags, reading, lemma, lemmaReading, pos]",
+          "type": "array",
+          "prefixItems": [
+            { "oneOf": [{ "type": "string" }, { "type": "array", "items": { "$ref": "#/$defs/frag" } }] },
+            { "type": "string" },
+            { "type": "string" },
+            { "type": "string" },
+            { "type": "string" }
+          ],
+          "minItems": 5,
+          "maxItems": 5
+        }
+      ]
+    },
+    "frag": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "string" },
+        { "type": ["string", "null"] },
+        { "type": "string", "pattern": "^[bae]*$" }
+      ],
+      "minItems": 1,
+      "maxItems": 3
+    }
+  }
+}

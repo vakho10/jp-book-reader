@@ -1,0 +1,241 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --font-jp: 'Noto Serif JP', 'Yu Mincho', 'YuMincho', 'Hiragino Mincho ProN', 'MS PMincho', serif;
+  --font-jp-sans: 'Noto Sans JP', 'Yu Gothic', 'YuGothic', 'Hiragino Sans', 'Meiryo', sans-serif;
+  --font-en: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+}
+
+:root {
+  --measure: 46rem;
+  --jp-size: 20px;
+  --tr-scale: 0.8;
+  --paper: #fbfaf7;
+  --card: #ffffff;
+  --ink: #1d1c1a;
+  --muted: #8a867e;
+  --tr: #9a958c;
+  --line: #e7e3da;
+  --accent: #b5452f;
+  --book-rt: #b5452f;
+  --auto-rt: #8a867e;
+  --hl: #f3ece0;
+  --em-dot: #1d1c1a;
+  color-scheme: light;
+}
+:root[data-theme='sepia'] {
+  --paper: #f4ecd8;
+  --card: #fbf5e6;
+  --ink: #3b2f22;
+  --muted: #8c7a63;
+  --tr: #99876f;
+  --line: #e2d5b8;
+  --accent: #9c4a1a;
+  --book-rt: #9c4a1a;
+  --auto-rt: #8c7a63;
+  --hl: #ebdfc2;
+  --em-dot: #3b2f22;
+}
+:root[data-theme='dark'] {
+  --paper: #16171a;
+  --card: #1f2125;
+  --ink: #e6e3dc;
+  --muted: #8b8e95;
+  --tr: #7d8088;
+  --line: #2c2f35;
+  --accent: #e0896e;
+  --book-rt: #e6a38d;
+  --auto-rt: #8b8e95;
+  --hl: #262a31;
+  --em-dot: #e6e3dc;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { transition: background-color 0.25s, color 0.25s; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+button, .w, .tr { touch-action: manipulation; } /* no double-tap-zoom delay */
+
+/* ---------- UI bits ---------- */
+@layer components {
+  .iconbtn { @apply grid size-10 shrink-0 place-items-center rounded-lg text-muted transition hover:bg-(--hl) hover:text-ink; }
+  .pill { @apply min-h-9 shrink-0 rounded-full border border-line px-3 py-1 text-xs font-medium text-muted transition hover:border-(--accent) hover:text-ink; }
+  .field { @apply flex flex-col gap-1.5 text-xs font-medium tracking-wide text-muted uppercase; }
+  .seg { @apply flex flex-wrap gap-1 rounded-lg bg-(--hl) p-1 normal-case tracking-normal; }
+  .seg button { @apply min-h-10 flex-1 rounded-md px-2.5 py-1.5 text-sm text-muted transition hover:text-ink; }
+  .seg button[aria-pressed='true'] { @apply bg-card text-ink shadow-sm; }
+  kbd { @apply rounded border border-line bg-(--hl) px-1 font-sans text-[0.7rem] text-ink; }
+  .action { @apply flex min-h-12 items-center justify-center gap-2 rounded-xl border border-line px-3 py-2 text-sm font-medium text-ink transition hover:border-(--accent) hover:bg-(--hl); }
+}
+
+/* ---------- Bookmark ribbons ---------- */
+/* One masked element per block: faint on hover (pointer devices), accent when bookmarked. */
+.rib {
+  position: absolute; top: 0.35rem; left: -2.6rem;
+  width: 2rem; height: 2rem; display: grid; place-items: center;
+  border-radius: 0.5rem; color: var(--muted); opacity: 0;
+  transition: opacity 0.15s, color 0.15s, transform 0.15s;
+}
+.rib::before {
+  content: ''; width: 1.15rem; height: 1.15rem; background: currentColor;
+  -webkit-mask: var(--rib-icon) center / contain no-repeat; mask: var(--rib-icon) center / contain no-repeat;
+}
+.block.marked .rib { opacity: 1; color: var(--accent); }
+@media (hover: hover) {
+  .block:hover .rib { opacity: 0.35; }
+  .block .rib:hover { opacity: 0.8; }
+  .block.marked .rib:hover { opacity: 1; transform: scale(1.1); }
+}
+.rib:focus-visible { opacity: 1; outline: 2px solid var(--accent); }
+/* touch screens have no hover: an invisible ribbon must not catch stray taps */
+@media (hover: none) { .block:not(.marked) .rib { visibility: hidden; } }
+/* phones: no gutter, so the ribbon hangs off the right edge like a real one */
+@media (max-width: 639px) {
+  .rib { left: auto; right: -1.15rem; top: -0.1rem; width: 1.6rem; }
+  .block.marked .jp { padding-right: 0.25rem; }
+}
+
+/* ---------- Read aloud ---------- */
+/* per-sentence speaker in the left gutter, under the ribbon (pointer devices with room) */
+.say {
+  position: absolute; top: 2.5rem; left: -2.6rem; width: 2rem; height: 2rem;
+  display: none; place-items: center; border-radius: 0.5rem; color: var(--muted); opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+@media (hover: hover) and (min-width: 640px) {
+  .say { display: grid; }
+  .block:hover .say { opacity: 0.45; }
+  .block .say:hover { opacity: 1; color: var(--accent); }
+}
+.say:focus-visible { opacity: 1; outline: 2px solid var(--accent); }
+
+.sent.speaking { background: color-mix(in srgb, var(--accent) 13%, transparent); border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.block.speaking::before {
+  content: ''; position: absolute; left: -0.75rem; top: 0.5rem; bottom: 0.5rem; width: 3px;
+  border-radius: 3px; background: var(--accent);
+}
+/* while playing, a tap on a sentence jumps there instead of opening the dictionary */
+body.listening .block { cursor: pointer; }
+body.listening .w { pointer-events: none; }
+body.player-open #reader { padding-bottom: calc(10rem + env(safe-area-inset-bottom)); }
+body.player-open #toast { bottom: calc(6rem + env(safe-area-inset-bottom)); }
+
+/* Dragging a book file over the page */
+body.dragging::after {
+  content: 'Drop the book file to open it'; position: fixed; inset: 12px; z-index: 70;
+  display: grid; place-items: center; border: 2px dashed var(--accent); border-radius: 1rem;
+  background: color-mix(in srgb, var(--paper) 88%, transparent); color: var(--ink); font-size: 1.1rem;
+  pointer-events: none;
+}
+
+/* Pick-a-sentence mode */
+body.picking .block { cursor: pointer; border-radius: 0.5rem; }
+body.picking .block:hover, body.picking .block:active { background: var(--hl); box-shadow: 0 0 0 6px var(--hl); }
+body.picking .w { pointer-events: none; }
+body.picking #reader { padding-bottom: 10rem; }
+
+/* Panels (settings, chapters): drop-down under the bar on wide screens,
+   bottom sheet within thumb reach on phones. */
+.panel {
+  position: fixed; z-index: 45; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--card); border: 1px solid var(--line);
+  left: 0; right: 0; top: var(--bar-h, 53px); max-height: 75vh;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+}
+#backdrop { position: fixed; inset: 0; z-index: 44; background: rgb(0 0 0 / 0.35); }
+@media (max-width: 639px) {
+  .panel, #pop.sheet {
+    top: auto; bottom: 0; max-height: 82vh;
+    border-radius: 1.1rem 1.1rem 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: sheet-up 0.22s ease-out;
+  }
+  .panel::before, #pop.sheet::before {
+    content: ''; display: block; width: 2.5rem; height: 4px; border-radius: 4px;
+    background: var(--line); margin: 0.6rem auto 0;
+  }
+  #pop.sheet { left: 0 !important; right: 0; width: auto; max-width: none; border-width: 1px 0 0; padding-top: 0.25rem; }
+}
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+
+/* ---------- Reading text ---------- */
+.jp {
+  font-family: var(--font-jp);
+  font-size: var(--jp-size);
+  line-height: 2.1;
+  letter-spacing: 0.04em;
+  font-feature-settings: 'palt' 0;
+  line-break: strict;
+}
+[data-font='sans'] .jp { font-family: var(--font-jp-sans); }
+
+.block { position: relative; padding: 0.15rem 0; scroll-margin-top: calc(var(--bar-h, 53px) + 24px); }
+.block.p { margin-top: 1.15rem; }
+.block .sent.p { display: block; margin-top: 0.35rem; }
+/* Japanese paragraphs open with a one-character indent, except ones that start with 「 */
+.block.p > .jp, .sent.p { text-indent: 1em; }
+.block.quote > .jp, .sent.p.quote { text-indent: 0; }
+.block:not(.p) > .jp { text-indent: 0; }
+.block.target { animation: flash 1.6s ease-out; }
+@keyframes flash { from { background: var(--hl); } to { background: transparent; } }
+
+.scene { display: flex; justify-content: center; gap: 1.2rem; margin: 2.6rem 0 1.4rem; color: var(--muted); font-size: 0.7rem; letter-spacing: 0.5em; }
+
+/* translation line */
+.tr {
+  font-family: var(--font-en);
+  font-size: calc(var(--jp-size) * var(--tr-scale) * 0.82);
+  line-height: 1.55;
+  color: var(--tr);
+  margin: 0.05rem 0 0.45rem;
+  text-indent: 0;
+  transition: filter 0.2s, opacity 0.2s;
+}
+.tr em { font-style: italic; }
+.tr.none { font-style: italic; opacity: 0.6; }
+[data-tr='hide'] .tr { display: none; }
+[data-tr='reveal'] .tr:not(.open) { filter: blur(5px); opacity: 0.55; cursor: pointer; user-select: none; }
+[data-tr='reveal'] .tr.open { filter: none; opacity: 1; cursor: pointer; }
+/* hover only hints on devices with a real pointer; never re-blurs a revealed line */
+@media (hover: hover) { [data-tr='reveal'] .tr:not(.open):hover { filter: blur(3px); opacity: 0.75; } }
+
+/* words */
+.w { border-radius: 3px; cursor: pointer; transition: background-color 0.15s; }
+@media (hover: hover) { .w:hover { background: var(--hl); } }
+.w.active { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.emph { text-emphasis: filled sesame var(--em-dot); -webkit-text-emphasis: filled sesame var(--em-dot); }
+
+/* furigana */
+ruby { ruby-position: over; ruby-align: center; }
+rt { font-size: 0.5em; letter-spacing: 0; line-height: 1; user-select: none; font-family: var(--font-jp-sans); }
+rt.b { color: var(--book-rt); }
+rt.a { color: var(--auto-rt); }
+[data-furi='book'] rt.a { display: none; }
+[data-furi='off'] rt { display: none; }
+[data-furi='hover'] rt { visibility: hidden; }
+[data-furi='hover'] .w.active rt { visibility: visible; }
+@media (hover: hover) { [data-furi='hover'] .w:hover rt { visibility: visible; } }
+
+/* phones: slightly tighter rhythm so more text fits, still roomy for ruby */
+@media (max-width: 639px) {
+  .jp { line-height: 2; letter-spacing: 0.02em; }
+  .block.p { margin-top: 0.9rem; }
+  .ch-head { margin-bottom: 2rem; }
+  .tr { font-size: max(13px, calc(var(--jp-size) * var(--tr-scale) * 0.85)); }
+}
+
+/* chapter heading */
+.ch-head { text-align: center; margin-bottom: 3rem; }
+.ch-head .num { font-family: var(--font-en); color: var(--accent); letter-spacing: 0.3em; font-size: 0.75rem; text-transform: uppercase; }
+.ch-head h1 { font-family: var(--font-jp); font-size: calc(var(--jp-size) * 1.5); font-weight: 600; margin-top: 0.5rem; letter-spacing: 0.08em; }
+.ch-head .en { font-family: var(--font-en); font-style: italic; color: var(--tr); margin-top: 0.25rem; }
+
+/* popover */
+#pop .word { font-family: var(--font-jp); font-size: 1.6rem; line-height: 1.3; }
+#pop .reading { font-family: var(--font-jp-sans); color: var(--accent); }
+#pop a { color: var(--accent); }
