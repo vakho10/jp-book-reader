@@ -80,6 +80,7 @@ const out = {
   revision: new Date().toISOString().replace(/\.\d+Z$/, 'Z'),
   title: book.title,
   ...(book.author ? { author: book.author } : {}),
+  ...(book.credits ? { credits: book.credits } : {}),
   languages: { text: 'ja', translation: 'en' },
   chapters,
 };
@@ -101,3 +102,12 @@ await fs.writeFile(file + '.gz', await promisify(zlib.gzip)(json, { level: 9 }))
 const kb = (n) => (n / 1024).toFixed(0) + ' KB';
 console.log(`✓ out/${book.id}.book.json (${kb(json.length)}, ${kb((await fs.stat(file + '.gz')).size)} gzipped) — ${chapters.length} chapter(s)`);
 if (skipped.length) console.log(`  not aligned yet: ${skipped.join(', ')}`);
+
+// Freely licensed demo books ship with the app (public/demo/ is served next to index.html).
+// Only ever set "demo": true for public-domain / openly licensed texts.
+if (book.demo && !wanted.length) {
+  const demoDir = path.join(ROOT, 'public', 'demo');
+  await fs.mkdir(demoDir, { recursive: true });
+  await fs.writeFile(path.join(demoDir, `${book.id}.book.json`), json);
+  console.log(`✓ public/demo/${book.id}.book.json (demo: published with the app)`);
+}

@@ -9,6 +9,7 @@ out/
 work/
 *.book.json
 *.book.json.gz
+!public/demo/*.book.json
 
 # misc
 .DS_Store

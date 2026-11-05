@@ -18,6 +18,7 @@ Machine-checkable definition: [`schema/book.schema.json`](../schema/book.schema.
   "revision": "2026-11-05T10:00:00Z",  // build time. Importing a file replaces the stored copy
   "title":  { "ja": "…", "en": "…" },
   "author": { "ja": "…", "en": "…" },
+  "credits": "Japanese text: … English: …",   // optional: sources & licenses, shown in the reader
   "languages": { "text": "ja", "translation": "en" },
   "chapters": [ Chapter, … ]           // only chapters that are aligned so far, in reading order
 }

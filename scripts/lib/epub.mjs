@@ -41,7 +41,18 @@ export async function readEntry(file, entry) {
   return f.async('string');
 }
 
-export const epubPath = (book, lang) => path.join(book.dir, book.sources[lang].epub);
+export const epubPath = (book, lang) => path.join(book.dir, book.sources[lang].epub ?? book.sources[lang].dir);
+
+// A source is either an EPUB ("epub": "source/ja.epub") or a folder of HTML files
+// ("dir": "text/ja"), e.g. public-domain texts converted with `npm run aozora`.
+async function readChapterFile(book, lang, entry) {
+  const src = book.sources[lang];
+  if (src.dir) {
+    const file = path.join(book.dir, src.dir, entry);
+    return fs.readFile(file, 'utf8').catch(() => { throw new Error(`Missing ${path.relative(ROOT, file)} — check the chapter map in book.json`); });
+  }
+  return readEntry(epubPath(book, lang), entry);
+}
 
 /** Spine (reading order) of an EPUB: [{ href, size }] with hrefs relative to the zip root. */
 export async function spine(file) {
@@ -117,7 +128,7 @@ export const unitsText = (units) => units.map((u) => u.c).join('');
 const stripNumber = (s) => s.replace(/^[\s　]*(?:第?[0-9０-９一二三四五六七八九十百]+[章話]?[．.、:：\s　]+)/, '').trim();
 
 export async function loadJpChapter(book, chapter) {
-  const root = parse(await readEntry(epubPath(book, 'ja'), chapter.ja));
+  const root = parse(await readChapterFile(book, 'ja', chapter.ja));
   const sel = book.sources.ja.titleSelector;
   const titleEl = sel ? root.querySelector(sel) : root.querySelector('h1, h2, h3');
   const title = chapter.title?.ja ?? (titleEl ? stripNumber(titleEl.text) : '');
@@ -196,7 +207,7 @@ function splitEnSentences(html) {
 const EN_SCENE = /space-break|scene-break|section-break/;
 
 export async function loadEnChapter(book, chapter) {
-  const root = parse(await readEntry(epubPath(book, 'en'), chapter.en));
+  const root = parse(await readChapterFile(book, 'en', chapter.en));
   const sel = book.sources.en.titleSelector;
   const titleEl = sel ? root.querySelector(sel)
     : root.querySelectorAll('h1, h2, h3').filter((h) => !/^\s*(chapter\s*)?[0-9ivxlc]+\.?\s*$/i.test(h.text)).at(0);

@@ -12,6 +12,7 @@
     "revision": { "type": "string", "format": "date-time" },
     "title": { "$ref": "#/$defs/bilingual" },
     "author": { "$ref": "#/$defs/bilingual" },
+    "credits": { "type": "string", "description": "Sources and licenses, shown in the reader" },
     "languages": {
       "type": "object",
       "properties": { "text": { "type": "string" }, "translation": { "type": "string" } }

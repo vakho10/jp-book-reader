@@ -1,0 +1,16 @@
+{
+  "id": "kumo-no-ito",
+  "title": { "ja": "蜘蛛の糸", "en": "The Spider’s Thread" },
+  "author": { "ja": "芥川龍之介", "en": "Akutagawa Ryūnosuke" },
+  "credits": "Japanese text: 芥川龍之介「蜘蛛の糸」(1918), public domain, from Aozora Bunko (青空文庫). English: original translation made for Japanese Book Reader, free to share (CC0).",
+  "demo": true,
+  "sources": {
+    "ja": { "dir": "text/ja" },
+    "en": { "dir": "text/en" }
+  },
+  "chapters": [
+    { "n": 1, "label": "Part 1", "ja": "01.html", "en": "01.html", "title": { "ja": "一", "en": "I" } },
+    { "n": 2, "label": "Part 2", "ja": "02.html", "en": "02.html", "title": { "ja": "二", "en": "II" } },
+    { "n": 3, "label": "Part 3", "ja": "03.html", "en": "03.html", "title": { "ja": "三", "en": "III" } }
+  ]
+}

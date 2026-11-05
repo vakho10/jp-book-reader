@@ -1,0 +1,41 @@
+# 二 / II
+# Format: J<a>[-J<b>] = E<c>[-E<d>]   or   J<a> = -   (no English). Every id once, in order.
+
+J1 = E1
+J2 = E2
+J3 = E3
+J4 = E4
+J5 = E5
+J6 = E6
+J7 = E7
+J8 = E8
+J9 = E9
+J10 = E10
+J11 = E11
+J12 = E12
+J13 = E13
+J14 = E14
+J15 = E15
+J16 = E16
+J17 = E17
+J18 = E18
+J19 = E19
+J20 = E20-E21
+J21-J22 = E22
+J23 = E23
+J24 = E24
+J25 = E25
+J26 = E26
+J27 = E27
+J28 = E28
+J29 = E29
+J30 = E30-E31
+J31 = E32
+J32 = E33
+J33 = E34
+J34-J35 = E35
+J36 = E36
+J37 = E37
+J38 = E38
+J39 = E39
+J40 = E40

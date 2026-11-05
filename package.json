@@ -10,7 +10,8 @@
     "inspect": "node scripts/inspect.mjs",
     "extract": "node scripts/extract.mjs",
     "check": "node scripts/check.mjs",
-    "book": "node scripts/build-book.mjs"
+    "book": "node scripts/build-book.mjs",
+    "aozora": "node scripts/aozora.mjs"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",

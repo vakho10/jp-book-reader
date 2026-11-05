@@ -1,0 +1,9 @@
+# 三 / III
+# Format: J<a>[-J<b>] = E<c>[-E<d>]   or   J<a> = -   (no English). Every id once, in order.
+
+J1 = E1
+J2 = E2
+J3 = E3
+J4 = E4
+J5 = E5
+J6 = E6

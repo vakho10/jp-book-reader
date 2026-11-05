@@ -150,14 +150,16 @@
     <!-- Chapter list -->
     <div id="toc" class="panel hidden" role="dialog" aria-label="Chapters and library">
       <div class="mx-auto max-w-(--measure) px-4 py-3">
-        <h2 id="tocBook" class="hidden px-3 pt-1 pb-2 font-jp text-sm font-semibold"></h2>
-        <ol id="tocList"></ol>
+        <h2 id="tocBook" class="hidden px-3 pt-1 font-jp text-sm font-semibold"></h2>
+        <p id="tocCredits" class="hidden px-3 pt-1 text-[11px] leading-snug text-muted"></p>
+        <ol id="tocList" class="mt-2"></ol>
         <div class="mt-3 border-t border-line pt-3">
           <div class="flex items-center justify-between gap-2 px-3 pb-1">
             <h2 class="text-xs font-medium tracking-wide text-muted uppercase">Library on this device</h2>
             <button id="addBook" class="pill inline-flex items-center gap-1.5"><i data-icon="plus" class="size-4"></i>Add book file</button>
           </div>
           <ul id="libList"></ul>
+          <ul id="libDemos"></ul>
         </div>
       </div>
     </div>

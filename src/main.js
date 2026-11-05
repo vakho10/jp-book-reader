@@ -458,6 +458,13 @@ function renderToc() {
     </button></li>`).join('') : '';
   $('#tocBook').textContent = book ? bookTitle() : '';
   $('#tocBook').classList.toggle('hidden', !book);
+  $('#tocCredits').textContent = book?.credits || '';
+  $('#tocCredits').classList.toggle('hidden', !book?.credits);
+  const missingDemos = DEMOS.filter((d) => !libraryIndex.some((b) => b.id === d.id));
+  $('#libDemos').innerHTML = missingDemos.map((d) => `
+    <li><button data-demo="${d.id}" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-muted hover:bg-(--hl) hover:text-ink">
+      ${icon('plus', 'size-4')}<span>Add demo: <span class="font-jp">${esc(d.ja)}</span></span>
+    </button></li>`).join('');
   $('#libList').innerHTML = libraryIndex.map((b) => `
     <li class="flex items-center gap-1">
       <button data-open-book="${b.id}" class="flex min-w-0 flex-1 items-baseline gap-2 rounded-lg px-3 py-2 text-left hover:bg-(--hl) ${b.id === book?.id ? 'text-accent' : ''}">
@@ -534,7 +541,17 @@ function showWelcome() {
     <section class="mx-auto max-w-lg py-10 text-center">
       <div class="text-3xl font-semibold tracking-tight">Japanese Book Reader</div>
       <p class="mt-2 font-jp text-lg text-muted">日本語の本を、対訳で。</p>
-      <div id="dropZone" class="mt-10 rounded-2xl border-2 border-dashed border-line px-6 py-10 transition">
+      ${DEMOS.map((d) => `
+      <button data-demo="${d.id}" class="mt-10 flex w-full items-center gap-4 rounded-2xl border border-line bg-card px-5 py-4 text-left shadow-sm transition hover:border-(--accent) hover:shadow">
+        <span class="grid size-11 shrink-0 place-items-center rounded-full bg-accent text-paper">${icon('play', 'size-5')}</span>
+        <span class="min-w-0 flex-1">
+          <span class="block text-xs font-medium tracking-wide text-accent uppercase">Try the demo</span>
+          <span class="mt-0.5 block font-jp text-lg">${esc(d.ja)}</span>
+          <span class="block text-sm text-muted">${esc(d.en)} · ${esc(d.note)}</span>
+        </span>
+      </button>`).join('')}
+      <div class="mt-8 flex items-center gap-3 text-xs text-muted"><span class="h-px flex-1 bg-line"></span>or open your own book<span class="h-px flex-1 bg-line"></span></div>
+      <div id="dropZone" class="mt-6 rounded-2xl border-2 border-dashed border-line px-6 py-10 transition">
         ${icon('upload', 'size-8 mx-auto text-muted')}
         <p class="mt-3 text-sm">Open a book file (<code class="text-xs">.book.json</code> or <code class="text-xs">.book.json.gz</code>)</p>
         <button id="welcomeOpen" class="action mx-auto mt-5 px-6">Choose file…</button>
@@ -546,6 +563,25 @@ function showWelcome() {
         To make a book file from your own EPUBs, see the project’s <code>docs/adding-a-book.md</code>.
       </p>
     </section>`;
+}
+
+// Public-domain demo books served with the app from ./demo/ (built by `npm run book`, "demo": true).
+const DEMOS = [
+  { id: 'kumo-no-ito', ja: '蜘蛛の糸 · 芥川龍之介', en: 'The Spider’s Thread', note: 'a 10-minute short story' },
+];
+
+async function loadDemo(id, btn) {
+  if (libraryIndex.some((b) => b.id === id)) { togglePanel(null); return openBook(id); }
+  if (btn) { btn.disabled = true; btn.classList.add('opacity-60'); }
+  try {
+    const res = await fetch(`./demo/${id}.book.json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    await importBookFiles([await res.blob()]);
+  } catch {
+    toast(location.protocol === 'file:' ? 'The demo needs the online reader (it can’t load from a local file)' : 'Couldn’t download the demo — check your connection');
+  } finally {
+    if (btn) { btn.disabled = false; btn.classList.remove('opacity-60'); }
+  }
 }
 
 $('#bookFile').addEventListener('change', (e) => { importBookFiles([...e.target.files]); e.target.value = ''; });
@@ -701,6 +737,8 @@ document.addEventListener('click', (e) => {
   }
   // library
   if (t.closest('#addBook, #welcomeOpen')) return $('#bookFile').click();
+  const demo = t.closest('[data-demo]');
+  if (demo) return loadDemo(demo.dataset.demo, demo);
   const openB = t.closest('[data-open-book]');
   if (openB) { togglePanel(null); return openBook(openB.dataset.openBook); }
   const delB = t.closest('[data-del-book]');
