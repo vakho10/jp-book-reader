@@ -1,6 +1,6 @@
 # AGENTS.md
 
-A Japanese–English bilingual reader for learners. The **app** (`src/`, `index.html`) is
+**Japanese Book Reader**: a Japanese–English bilingual reader for learners. The **app** (`src/`, `index.html`) is
 public and contains no book text. **Book files** are built locally from EPUBs the user owns
 and are loaded into the app on each device (stored in IndexedDB, never uploaded).
 

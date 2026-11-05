@@ -3,10 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="application-name" content="Japanese Book Reader" />
+    <meta name="apple-mobile-web-app-title" content="JP Reader" />
     <meta name="theme-color" content="#fbfaf7" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <title>Bilingual Reader</title>
+    <title>Japanese Book Reader</title>
     <meta name="description" content="Read Japanese books sentence by sentence with an English translation, furigana, word lookup and read-aloud. Book files stay on your device." />
     <script>
       // Apply saved look before first paint (no white flash in dark mode, no font-size jump).
@@ -35,7 +37,7 @@
       <div class="mx-auto flex max-w-(--measure) items-center gap-1.5 py-1.5 pr-[max(0.75rem,env(safe-area-inset-right))] pl-[max(0.5rem,env(safe-area-inset-left))] sm:gap-2 sm:px-4">
         <button id="tocBtn" class="iconbtn" title="Chapters (C)" aria-label="Chapters"><i data-icon="bars-3"></i></button>
         <div class="min-w-0 flex-1 leading-tight">
-          <div class="truncate font-jp text-sm font-semibold" id="hdrTitle">Bilingual Reader</div>
+          <div class="truncate font-jp text-sm font-semibold" id="hdrTitle">Japanese Book Reader</div>
           <div class="truncate text-[11px] text-muted sm:text-xs" id="hdrSub"></div>
         </div>
         <button id="trBtn" class="pill" title="Translation: shown / tap to reveal / hidden (T)"></button>

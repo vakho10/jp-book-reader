@@ -473,7 +473,7 @@ function renderToc() {
 // Reader-only controls are hidden on the welcome screen.
 function setReaderChrome(on) {
   for (const id of ['#trBtn', '#furiBtn', '#listenBtn', '#bmBtn']) $(id).classList.toggle('hidden', !on);
-  $('#hdrSub').textContent = on ? $('#hdrSub').textContent : 'Bilingual reader';
+  $('#hdrSub').textContent = on ? $('#hdrSub').textContent : 'Japanese–English reading';
 }
 
 async function refreshLibrary() {
@@ -527,13 +527,13 @@ function showWelcome() {
   stopPlayer();
   book = null;
   setReaderChrome(false);
-  $('#hdrTitle').textContent = 'Bilingual Reader';
-  document.title = 'Bilingual Reader';
+  $('#hdrTitle').textContent = 'Japanese Book Reader';
+  document.title = 'Japanese Book Reader';
   renderToc();
   reader.innerHTML = `
     <section class="mx-auto max-w-lg py-10 text-center">
-      <div class="font-jp text-3xl font-semibold tracking-wider">対訳リーダー</div>
-      <p class="mt-2 font-en text-lg italic text-muted">Japanese–English bilingual reader</p>
+      <div class="text-3xl font-semibold tracking-tight">Japanese Book Reader</div>
+      <p class="mt-2 font-jp text-lg text-muted">日本語の本を、対訳で。</p>
       <div id="dropZone" class="mt-10 rounded-2xl border-2 border-dashed border-line px-6 py-10 transition">
         ${icon('upload', 'size-8 mx-auto text-muted')}
         <p class="mt-3 text-sm">Open a book file (<code class="text-xs">.book.json</code> or <code class="text-xs">.book.json.gz</code>)</p>

@@ -1,5 +1,5 @@
 # Publishes the reader app (no book content) to GitHub Pages on every push to main.
-name: Deploy reader to GitHub Pages
+name: Deploy Japanese Book Reader to GitHub Pages
 
 on:
   push:

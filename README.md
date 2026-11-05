@@ -1,4 +1,6 @@
-# 対訳リーダー · Bilingual Reader
+# Japanese Book Reader
+
+**Open the reader:** https://vakho10.github.io/jp-book-reader/
 
 Read Japanese books sentence by sentence, with the English translation under each line.
 Features: furigana (the book's own, or for every kanji), tap-a-word readings and dictionary
